@@ -23,22 +23,22 @@ def predict_real(news: News) -> dict[str, float]:
 
 
 def __predict0(title: str, text: str) -> float:
-    __cpu_bound_task(40)
+    __cpu_bound_task(30)
     return 0.0
 
 
 def __predict1(title: str, text: str) -> float:
-    __cpu_bound_task(35)
+    __cpu_bound_task(25)
     return 0.1
 
 
 def __predict2(title: str, text: str) -> float:
-    __cpu_bound_task(30)
+    __cpu_bound_task(20)
     return 0.2
 
 
 def __predict3(title: str, text: str) -> float:
-    __cpu_bound_task(35)
+    __cpu_bound_task(25)
     return 0.3
 
 
