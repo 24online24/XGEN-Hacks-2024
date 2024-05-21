@@ -42,10 +42,9 @@ async def predict(request: Request) -> Response:
             description=json.dumps({"error": "content is required"}),
         )
 
-    news = News(title=title, content=content)
     start = time.time()
-    deserialized_title = unquote(news.title)
-    deserialized_content = unquote(news.content)
+    deserialized_title = unquote(title)
+    deserialized_content = unquote(content)
     model_name_to_result = predict_real(
         deserialized_title, deserialized_content)
     result_list: list[dict[str, str | float]] = []
