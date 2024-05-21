@@ -1,7 +1,7 @@
 import time
 from robyn import Request, Response, Robyn, jsonify, serve_html
 
-from ml_caller import predictFake
+from ml_caller import predictReal
 from models import News
 
 
@@ -40,12 +40,12 @@ async def predict(request: Request) -> Response:
 
     news = News(title=title, content=content)
     start = time.time()
-    prediction = predictFake(news)
+    prediction = predictReal(news)
     print(f"Time taken: {time.time() - start}")
     return Response(
         status_code=200,
         headers={"Content-Type": "application/json"},
-        description=jsonify({"prediction": prediction}),
+        description=jsonify(prediction),
     )
 
 
