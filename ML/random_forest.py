@@ -3,9 +3,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score
-import joblib, re, string
+import joblib
+import re
+import string
 
 df = pd.read_csv("ML/csv_train/Bigger.csv")
+
 
 def preprocess(text):
     text = text.lower()
@@ -17,6 +20,7 @@ def preprocess(text):
     text = re.sub(r'\n', '', text)
     text = re.sub(r'\w*\d\w*', '', text)
     return text
+
 
 df['text'] = df['text'].apply(preprocess)
 
