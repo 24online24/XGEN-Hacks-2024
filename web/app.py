@@ -17,11 +17,6 @@ async def index():
     return serve_html("./web/frontend/dist/index.html")
 
 
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
-
-
 @app.get("/predict")
 async def predict(request: Request) -> Response:
     title = request.query_params.get("title")
