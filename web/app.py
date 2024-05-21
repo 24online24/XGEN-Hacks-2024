@@ -1,12 +1,14 @@
 import json
 import time
-from robyn import Request, Response, Robyn, serve_html
+from robyn import ALLOW_CORS, Request, Response, Robyn, serve_html
 
 from ml_caller import predict_real
 from models import News
 
 
 app = Robyn(__file__)
+
+ALLOW_CORS(app, origins=["http://localhost:5173"])
 
 app.add_directory("/assets", "./web/frontend/dist/assets")
 
