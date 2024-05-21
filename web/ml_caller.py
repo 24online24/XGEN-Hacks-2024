@@ -14,7 +14,7 @@ def predict_real(news: News) -> dict[str, float]:
     # }
 
     # with concurrent.futures.ProcessPoolExecutor() as executor:
-    #     function_call_to_model_name = {executor.submit(function, news.title, news.content): model_name
+    #     function_call_to_model_name = {executor.submit(function, deserialized_title, deserialized_content): model_name
     #                                    for model_name, function in model_name_to_function.items()}
     #     model_name_to_result = {function_call_to_model_name[function_call]: function_call.result()
     #                             for function_call in concurrent.futures.as_completed(function_call_to_model_name)}
