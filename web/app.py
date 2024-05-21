@@ -4,7 +4,6 @@ from urllib.parse import unquote
 from robyn import ALLOW_CORS, Request, Response, Robyn, serve_html
 
 from ml_caller import predict_real
-from models import News
 
 
 app = Robyn(__file__)
