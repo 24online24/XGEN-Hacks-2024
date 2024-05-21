@@ -19,23 +19,20 @@
 
   let predictions: Prediction[] = [];
 
-  $: overallPrediction =
-    predictions.reduce((acc, curr) => acc + curr.value, 0) / predictions.length;
+  $: overallPrediction = Number(
+    (
+      predictions.reduce((acc, curr) => acc + curr.value, 0) /
+      predictions.length
+    ).toFixed(2)
+  );
 
   async function submit() {
     loading = true;
     console.log(title, text);
     // this will call the backend to get the predictions, each algoritm has the following object
     // {name: string, value: number, description: string}
-    const encodedTitle = encodeURIComponent(title);
-    const encodedText = encodeURIComponent(text);
-    const urlParams = new URLSearchParams({
-      title: encodedTitle,
-      content: encodedText,
-    });
 
-    const baseUrl = "http://localhost:8080/predict?";
-    const url = baseUrl + urlParams.toString();
+    const url = `http://localhost:8080/predict?title=${title}&content=${text}`;
 
     try {
       const res = await fetch(url);
@@ -88,7 +85,7 @@
           {/if}
         </Button>
       </div>
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-4 mb-5">
         <!-- Thhis will show the predictions for each algorithm in a simple card -->
         {#if loading || predictions.length === 0}
           <div class="flex justify-center items-center h-full">

@@ -32,7 +32,7 @@
     <div class="flex items-center">
       <span class="text-sm capitalize font-medium">{name}</span>
     </div>
-    <span class={"text-sm font-medium text-muted-foreground"}
+    <span class={"text-sm flex-1 text-center font-medium text-muted-foreground"}
       >{predictionMessage}</span
     >
     <span class={color + " text-sm font-medium"}>{value}% Confidence</span>
