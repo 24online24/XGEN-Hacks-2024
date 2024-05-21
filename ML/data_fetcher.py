@@ -1,16 +1,33 @@
-import polars as pl
+import joblib
+import pandas as pd
+import re
+import string
 
-df1 = pl.read_csv("ML/csv_train/Fake.csv", separator=',')
-df2 = pl.read_csv("ML/csv_train/True.csv", separator=',')
+def fetch_prediction_random_forest(title: str, text: str) -> float:
+    Random_Forest_Classifier = joblib.load('ML/saved_models/random_forest2.pkl')
+    vectorizer = joblib.load('ML/saved_models/vectorizer2.pkl')
 
-df1 = df1.with_columns(
-    pl.lit(0).alias("Label")
-)
+    def preprocess(text):
+        text = text.lower()
+        text = re.sub(r'\[.*?\]', '', text)
+        text = re.sub(r"\\W", " ", text)
+        text = re.sub(r'https://\S+|www\.\S+', '', text)
+        text = re.sub(r'<.*?>+', '', text)
+        text = re.sub(r'[%s]' % re.escape(string.punctuation), '', text)
+        text = re.sub(r'\n', '', text)
+        text = re.sub(r'\w*\d\w*', '', text)
+        return text
 
-df2 = df2.with_columns(
-    pl.lit(1).alias('Label')
-)
+    def Fake_news_predict(news):
+        testing_news = {"text":[news]}
+        new_df_test = pd.DataFrame(testing_news)
+        new_df_test["text"] = new_df_test["text"].apply(preprocess)
+        new_x_test = vectorizer.transform(new_df_test["text"])
+        pred_proba_RFC = Random_Forest_Classifier.predict_proba(new_x_test)
 
-combine_df = pl.concat([df1, df2]).drop(["date", "subject"])
+        proba_real = pred_proba_RFC[0][0] * 100
+        
+        return float(f'{proba_real:.2f}')
 
-combine_df.write_csv('ML/csv_train/Combined.csv')
+    return Fake_news_predict(title + " " + text)
+    
