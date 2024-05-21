@@ -1,15 +1,13 @@
-from dataclasses import dataclass
+import time
 from robyn import Request, Response, Robyn, jsonify, serve_html
+
+from ml_caller import predictFake
+from models import News
+
 
 app = Robyn(__file__)
 
 app.add_directory("/assets", "./web/frontend/dist/assets")
-
-
-@dataclass
-class News:
-    title: str
-    content: str
 
 
 @app.get("/")
@@ -41,10 +39,13 @@ async def predict(request: Request) -> Response:
         )
 
     news = News(title=title, content=content)
+    start = time.time()
+    prediction = predictFake(news)
+    print(f"Time taken: {time.time() - start}")
     return Response(
         status_code=200,
         headers={"Content-Type": "application/json"},
-        description=jsonify(news.__dict__),
+        description=jsonify({"prediction": prediction}),
     )
 
 
