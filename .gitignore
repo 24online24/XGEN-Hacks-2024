@@ -172,3 +172,4 @@ node_modules
 dist
 dist-ssr
 *.local
+web/frontend/yarn.lock
