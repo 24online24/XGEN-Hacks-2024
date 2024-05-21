@@ -1,16 +1,15 @@
 import concurrent.futures
+from ML.data_fetcher import fetch_prediction_decision_tree, fetch_prediction_logistic_regression, fetch_prediction_multinomial_nb, fetch_prediction_random_forest, fetch_prediction_svm
 from models import News
-# from ..ML.data_fetcher import fetch_prediction_random_forest
 
 
 def predict_real(news: News) -> dict[str, float]:
     model_name_to_function = {
-        # "random_forest": fetch_prediction_random_forest,
-        "predict0": __predict0,
-        "predict1": __predict1,
-        "predict2": __predict2,
-        "predict3": __predict3,
-        "predict4": __predict4,
+        "random_forest": fetch_prediction_random_forest,
+        "decision_tree": fetch_prediction_decision_tree,
+        "logistic_regression": fetch_prediction_logistic_regression,
+        "multinomial_nb": fetch_prediction_multinomial_nb,
+        "svm": fetch_prediction_svm
     }
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -20,32 +19,3 @@ def predict_real(news: News) -> dict[str, float]:
                                 for function_call in concurrent.futures.as_completed(function_call_to_model_name)}
 
     return model_name_to_result
-
-
-def __predict0(title: str, text: str) -> float:
-    __cpu_bound_task(30)
-    return 0.0
-
-
-def __predict1(title: str, text: str) -> float:
-    __cpu_bound_task(25)
-    return 0.1
-
-
-def __predict2(title: str, text: str) -> float:
-    __cpu_bound_task(20)
-    return 0.2
-
-
-def __predict3(title: str, text: str) -> float:
-    __cpu_bound_task(25)
-    return 0.3
-
-
-def __predict4(title: str, text: str) -> float:
-    __cpu_bound_task(10)
-    return 0.4
-
-
-def __cpu_bound_task(n: int) -> int:
-    return n if n <= 1 else __cpu_bound_task(n-1) + __cpu_bound_task(n-2)
