@@ -3,8 +3,8 @@ from models import News
 # from ..ML.data_fetcher import fetch_prediction_random_forest
 
 
-def predictReal(news: News) -> dict[str, float]:
-    method_predictor_dic = {
+def predict_real(news: News) -> dict[str, float]:
+    model_name_to_function = {
         # "random_forest": fetch_prediction_random_forest,
         "predict0": __predict0,
         "predict1": __predict1,
@@ -14,12 +14,12 @@ def predictReal(news: News) -> dict[str, float]:
     }
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        futures = {executor.submit(predictor, news.title, news.content): method_name
-                   for method_name, predictor in method_predictor_dic.items()}
-        results = {futures[f]: f.result()
-                   for f in concurrent.futures.as_completed(futures)}
+        function_call_to_model_name = {executor.submit(function, news.title, news.content): model_name
+                                       for model_name, function in model_name_to_function.items()}
+        model_name_to_result = {function_call_to_model_name[function_call]: function_call.result()
+                                for function_call in concurrent.futures.as_completed(function_call_to_model_name)}
 
-    return results
+    return model_name_to_result
 
 
 def __predict0(title: str, text: str) -> float:

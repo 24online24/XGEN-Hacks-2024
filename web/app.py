@@ -1,7 +1,7 @@
 import time
 from robyn import Request, Response, Robyn, jsonify, serve_html
 
-from ml_caller import predictReal
+from ml_caller import predict_real
 from models import News
 
 
@@ -40,7 +40,7 @@ async def predict(request: Request) -> Response:
 
     news = News(title=title, content=content)
     start = time.time()
-    prediction = predictReal(news)
+    prediction = predict_real(news)
     print(f"Time taken: {time.time() - start}")
     return Response(
         status_code=200,
