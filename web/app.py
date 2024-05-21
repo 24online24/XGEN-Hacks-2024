@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from robyn import Request, Response, Robyn, jsonify, serve_file, serve_html
+from robyn import Request, Response, Robyn, jsonify, serve_html
+from robyn.logger import logger
 
 app = Robyn(__file__)
 
-app.add_directory("/assets","./web/frontend/dist/assets")
+app.add_directory("/assets", "./web/frontend/dist/assets")
 
 
 @dataclass
@@ -46,10 +47,6 @@ async def predict(request: Request) -> Response:
         headers={"Content-Type": "application/json"},
         description=jsonify(news.__dict__),
     )
-
-
-# @app.post("/")
-# async def
 
 
 if __name__ == "__main__":
