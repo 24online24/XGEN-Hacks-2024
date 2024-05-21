@@ -26,6 +26,7 @@ async def health():
 
 @app.get("/predict")
 async def predict(request: Request) -> Response:
+    start = time.time()
     title = request.query_params.get("title")
     if title is None:
         return Response(
@@ -42,7 +43,6 @@ async def predict(request: Request) -> Response:
             description=json.dumps({"error": "content is required"}),
         )
 
-    start = time.time()
     deserialized_title = unquote(title)
     deserialized_content = unquote(content)
     model_name_to_result = predict_real(
