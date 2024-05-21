@@ -173,3 +173,9 @@ dist
 dist-ssr
 *.local
 web/frontend/yarn.lock
+
+Fake.csv
+True.csv
+Combined.csv
+random_forest2.pkl
+Bigger.csv
