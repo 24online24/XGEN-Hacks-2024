@@ -1,8 +1,8 @@
 import time
 from robyn import Request, Response, Robyn, jsonify, serve_html
 
-from ml_caller import predictFake
-from models import News
+from ml_caller import predict_real
+from models import News, ResponseArrayElement
 
 
 app = Robyn(__file__)
@@ -40,12 +40,21 @@ async def predict(request: Request) -> Response:
 
     news = News(title=title, content=content)
     start = time.time()
-    prediction = predictFake(news)
+    model_name_to_result = predict_real(news)
+    result_list: list[ResponseArrayElement] = []
+    for model_name, result in model_name_to_result.items():
+        result_list.append(
+            ResponseArrayElement(
+                name=model_name,
+                description="This is the probability of the news being fake",
+                value=result,
+            )
+        )
     print(f"Time taken: {time.time() - start}")
     return Response(
         status_code=200,
         headers={"Content-Type": "application/json"},
-        description=jsonify({"prediction": prediction}),
+        description=jsonify(result_list),
     )
 
 

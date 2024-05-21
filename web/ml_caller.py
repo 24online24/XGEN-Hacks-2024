@@ -1,37 +1,50 @@
 import concurrent.futures
-import random
 from models import News
+# from ..ML.data_fetcher import fetch_prediction_random_forest
 
 
-def predictFake(news: News) -> bool:
+def predict_real(news: News) -> dict[str, float]:
+    model_name_to_function = {
+        # "random_forest": fetch_prediction_random_forest,
+        "predict0": __predict0,
+        "predict1": __predict1,
+        "predict2": __predict2,
+        "predict3": __predict3,
+        "predict4": __predict4,
+    }
+
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        futures = [executor.submit(func, news) for func in [
-            __predict0, __predict1, __predict2, __predict3]]
-        results = [f.result()
-                   for f in concurrent.futures.as_completed(futures)]
+        function_call_to_model_name = {executor.submit(function, news.title, news.content): model_name
+                                       for model_name, function in model_name_to_function.items()}
+        model_name_to_result = {function_call_to_model_name[function_call]: function_call.result()
+                                for function_call in concurrent.futures.as_completed(function_call_to_model_name)}
 
-    average = sum(results) / len(results)
-    return average > 0.5
-
-
-def __predict0(news: News) -> float:
-    __cpu_bound_task(40)
-    return random.random()
+    return model_name_to_result
 
 
-def __predict1(news: News) -> float:
-    __cpu_bound_task(40)
-    return random.random()
+def __predict0(title: str, text: str) -> float:
+    __cpu_bound_task(30)
+    return 0.0
 
 
-def __predict2(news: News) -> float:
-    __cpu_bound_task(40)
-    return random.random()
+def __predict1(title: str, text: str) -> float:
+    __cpu_bound_task(25)
+    return 0.1
 
 
-def __predict3(news: News) -> float:
-    __cpu_bound_task(40)
-    return random.random()
+def __predict2(title: str, text: str) -> float:
+    __cpu_bound_task(20)
+    return 0.2
+
+
+def __predict3(title: str, text: str) -> float:
+    __cpu_bound_task(25)
+    return 0.3
+
+
+def __predict4(title: str, text: str) -> float:
+    __cpu_bound_task(10)
+    return 0.4
 
 
 def __cpu_bound_task(n: int) -> int:
