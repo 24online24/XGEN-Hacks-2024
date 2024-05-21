@@ -1,5 +1,6 @@
 import json
 import time
+from urllib.parse import unquote
 from robyn import ALLOW_CORS, Request, Response, Robyn, serve_html
 
 from ml_caller import predict_real
@@ -43,7 +44,10 @@ async def predict(request: Request) -> Response:
 
     news = News(title=title, content=content)
     start = time.time()
-    model_name_to_result = predict_real(news)
+    deserialized_title = unquote(news.title)
+    deserialized_content = unquote(news.content)
+    model_name_to_result = predict_real(
+        deserialized_title, deserialized_content)
     result_list: list[dict[str, str | float]] = []
     for model_name, result in model_name_to_result.items():
         result_list.append(
