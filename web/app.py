@@ -1,9 +1,8 @@
 import json
-import time
+from urllib.parse import unquote
 from robyn import ALLOW_CORS, Request, Response, Robyn, serve_html
 
 from ml_caller import predict_real
-from models import News
 
 
 app = Robyn(__file__)
@@ -16,11 +15,6 @@ app.add_directory("/assets", "./web/frontend/dist/assets")
 @app.get("/")
 async def index():
     return serve_html("./web/frontend/dist/index.html")
-
-
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
 
 
 @app.get("/predict")
@@ -41,9 +35,7 @@ async def predict(request: Request) -> Response:
             description=json.dumps({"error": "content is required"}),
         )
 
-    news = News(title=title, content=content)
-    start = time.time()
-    model_name_to_result = predict_real(news)
+    model_name_to_result = predict_real(unquote(title), unquote(content))
     result_list: list[dict[str, str | float]] = []
     for model_name, result in model_name_to_result.items():
         result_list.append(
@@ -53,7 +45,7 @@ async def predict(request: Request) -> Response:
                 "value": result
             }
         )
-    print(f"Time taken: {time.time() - start}")
+
     return Response(
         status_code=200,
         headers={"Content-Type": "application/json"},
