@@ -3,6 +3,8 @@ from robyn import Request, Response, Robyn, jsonify, serve_file, serve_html
 
 app = Robyn(__file__)
 
+app.add_directory("/assets","./web/frontend/dist/assets")
+
 
 @dataclass
 class News:
@@ -12,13 +14,7 @@ class News:
 
 @app.get("/")
 async def index():
-    return serve_html("./frontend/dist/index.html")
-
-
-@app.get("/assets/:file")
-async def assets(request: Request):
-    file_name = request.path_params.get("file")
-    return serve_file(f"./frontend/dist/assets/{file_name}")
+    return serve_html("./web/frontend/dist/index.html")
 
 
 @app.get("/health")
