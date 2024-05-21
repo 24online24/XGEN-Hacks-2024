@@ -15,6 +15,7 @@
     name: string;
     value: number;
     description: string;
+    accuracy: number;
   }
 
   let predictions: Prediction[] = [];
@@ -103,6 +104,7 @@
                 name="Overall"
                 value={overallPrediction}
                 description="This is the overall prediction of the news"
+                accuracy={0}
               />
             </div>
             <h2 class="text-xl font-bold mt-4">Predictions</h2>
@@ -112,6 +114,7 @@
                   name={prediction.name}
                   value={prediction.value}
                   description={prediction.description}
+                  accuracy={prediction.accuracy}
                 />
               {/each}
             </div>

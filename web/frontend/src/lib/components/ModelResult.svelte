@@ -2,6 +2,7 @@
   export let name: string; // name of model
   export let value: number; // confidence
   export let description: string; // description of the model
+  export let accuracy: number; // accuracy of the model
 
   // prediction color red if values under 0.33, yellow if under 0.66, green if above 0.66
   let color =
@@ -41,9 +42,15 @@
     class="hidden group-hover:block transition-[height] duration-1000 ease-in-out"
   >
     <p
-      class="mt-2 h-0 group-hover:h-auto transition-[height] duration-1000 ease-in-out"
+      class="mt-2 text-xs h-0 group-hover:h-auto transition-[height] duration-1000 ease-in-out"
     >
       {description}
+      {#if accuracy > 0}
+        <br />
+        <span class="text-xs text-muted-foreground">
+          Training accuracy: {accuracy}%
+        </span>
+      {/if}
     </p>
   </div>
 </div>
