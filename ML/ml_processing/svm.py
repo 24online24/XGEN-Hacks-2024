@@ -41,8 +41,5 @@ y_pred = svm_model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 report = classification_report(y_test, y_pred)
 
-print(f"Accuracy: {accuracy}")
-print(f"Classification Report:\n{report}")
-
 joblib.dump(svm_model, 'ML/saved_models/svm_model.pkl')
-joblib.dump(vectorizer, 'ML/saved_models/vectorizer.pkl')
+joblib.dump(vectorizer, 'ML/saved_models/svm_vectorizer.pkl')

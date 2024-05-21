@@ -45,5 +45,5 @@ x_test = vectorization.transform(x_test)
 Random_Forest_Classifier = RandomForestClassifier(random_state=0)
 Random_Forest_Classifier.fit(x_train, y_train)
 
-joblib.dump(Random_Forest_Classifier, 'ML/saved_models/random_forest2.pkl')
-joblib.dump(vectorization, 'ML/saved_models/vectorizer2.pkl')
+joblib.dump(Random_Forest_Classifier, 'ML/saved_models/random_forest_model.pkl')
+joblib.dump(vectorization, 'ML/saved_models/random_forest_vectorizer.pkl')
