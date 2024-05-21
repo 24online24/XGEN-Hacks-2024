@@ -1,5 +1,4 @@
 import json
-import time
 from urllib.parse import unquote
 from robyn import ALLOW_CORS, Request, Response, Robyn, serve_html
 
@@ -25,7 +24,6 @@ async def health():
 
 @app.get("/predict")
 async def predict(request: Request) -> Response:
-    start = time.time()
     title = request.query_params.get("title")
     if title is None:
         return Response(
@@ -55,7 +53,7 @@ async def predict(request: Request) -> Response:
                 "value": result
             }
         )
-    print(f"Time taken: {time.time() - start}")
+
     return Response(
         status_code=200,
         headers={"Content-Type": "application/json"},
