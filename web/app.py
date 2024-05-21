@@ -1,8 +1,9 @@
+import json
 import time
-from robyn import Request, Response, Robyn, jsonify, serve_html
+from robyn import Request, Response, Robyn, serve_html
 
 from ml_caller import predict_real
-from models import News, ResponseArrayElement
+from models import News
 
 
 app = Robyn(__file__)
@@ -27,7 +28,7 @@ async def predict(request: Request) -> Response:
         return Response(
             status_code=400,
             headers={"Content-Type": "application/json"},
-            description=jsonify({"error": "title is required"}),
+            description=json.dumps({"error": "title is required"}),
         )
 
     content = request.query_params.get("content")
@@ -35,26 +36,26 @@ async def predict(request: Request) -> Response:
         return Response(
             status_code=400,
             headers={"Content-Type": "application/json"},
-            description=jsonify({"error": "content is required"}),
+            description=json.dumps({"error": "content is required"}),
         )
 
     news = News(title=title, content=content)
     start = time.time()
     model_name_to_result = predict_real(news)
-    result_list: list[ResponseArrayElement] = []
+    result_list: list[dict[str, str | float]] = []
     for model_name, result in model_name_to_result.items():
         result_list.append(
-            ResponseArrayElement(
-                name=model_name,
-                description="This is the probability of the news being fake",
-                value=result,
-            )
+            {
+                "name": model_name,
+                "description": "This is the probability of the news being fake",
+                "value": result
+            }
         )
     print(f"Time taken: {time.time() - start}")
     return Response(
         status_code=200,
         headers={"Content-Type": "application/json"},
-        description=jsonify(result_list),
+        description=json.dumps(result_list),
     )
 
 
