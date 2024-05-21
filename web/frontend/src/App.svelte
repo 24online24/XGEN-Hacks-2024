@@ -1,44 +1,113 @@
 <script lang="ts">
-  import svelteLogo from "./assets/svelte.svg";
-  import viteLogo from "/vite.svg";
+  import ModelResult from "$lib/components/ModelResult.svelte";
+  import Navbar from "$lib/components/Navbar.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
+  import Label from "$lib/components/ui/label/label.svelte";
+  import Textarea from "$lib/components/ui/textarea/textarea.svelte";
+  import { LoaderCircle } from "lucide-svelte";
+  import { ModeWatcher } from "mode-watcher";
+
+  let title = "Hello World";
+  let text = "This is a test text";
+
+  interface Prediction {
+    name: string;
+    value: number;
+    description: string;
+  }
+
+  let predictions: Prediction[] = [];
+
+  $: overallPrediction =
+    predictions.reduce((acc, curr) => acc + curr.value, 0) / predictions.length;
+
+  async function submit() {
+    loading = true;
+    console.log(title, text);
+    // this will call the backend to get the predictions, each algoritm has the following object
+    // {name: string, value: number, description: string}
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    predictions.push({
+      name: "Algorithm 1",
+      value: Math.random(),
+      description: "This is the prediction of the news",
+    });
+    loading = false;
+  }
+
+  let loading = false;
 </script>
 
-<main>
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
+<div class="relative flex min-h-screen flex-col bg-background">
+  <Navbar />
+  <div class="flex-1 pt-2">
+    <div class="container grid grid-cols-2 gap-6">
+      <div class="flex flex-col py-6 gap-4">
+        <!-- header -->
+        <h1 class="text-3xl font-bold">News Prediction</h1>
+        <!-- Form to submit the news -->
+        <!-- desc -->
+        <p class="text-lg">
+          Submit a news article to get the predictions from our algorithms
+        </p>
+
+        <Label class="px-3" for="newsTitle">News Title</Label>
+        <Input
+          id="newsTitle"
+          bind:value={title}
+          placeholder="Enter the news text here..."
+        />
+        <Label class="px-3" for="newsText">News Text</Label>
+        <Textarea
+          id="newsText"
+          bind:value={text}
+          class="h-48"
+          placeholder="Enter the news text here..."
+        />
+        <Button on:click={submit} disabled={loading} class="w-1/4 self-center">
+          {#if loading}
+            <LoaderCircle class="size-6 animate-spin" />
+          {:else}
+            Submit
+          {/if}
+        </Button>
+      </div>
+      <div class="flex flex-col gap-4">
+        <!-- Thhis will show the predictions for each algorithm in a simple card -->
+        {#if loading || predictions.length === 0}
+          <div class="flex justify-center items-center h-full">
+            {#if loading}
+              <LoaderCircle class="size-12 animate-spin self-center" />
+            {:else}
+              <p class="text-lg text-center">No predictions available</p>
+            {/if}
+          </div>
+        {:else}
+          <div class="flex flex-col mt-4">
+            <h2 class="text-xl font-bold">Overall Prediction</h2>
+            <div class="flex flex-col gap-2">
+              <ModelResult
+                name="Overall"
+                value={overallPrediction}
+                description="This is the overall prediction of the news"
+              />
+            </div>
+            <h2 class="text-xl font-bold mt-4">Predictions</h2>
+            <div class="flex flex-col gap-2">
+              {#each predictions as prediction}
+                <ModelResult
+                  name={prediction.name}
+                  value={prediction.value}
+                  description={prediction.description}
+                />
+              {/each}
+            </div>
+          </div>
+        {/if}
+      </div>
+    </div>
   </div>
-  <h1>Vite + Svelte</h1>
-
-  <p>
-    Check out <a
-      href="https://github.com/sveltejs/kit#readme"
-      target="_blank"
-      rel="noreferrer">SvelteKit</a
-    >, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
-</main>
-
-<style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
-  }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
-  }
-</style>
+</div>
+<ModeWatcher />
