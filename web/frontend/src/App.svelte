@@ -27,13 +27,27 @@
     console.log(title, text);
     // this will call the backend to get the predictions, each algoritm has the following object
     // {name: string, value: number, description: string}
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    predictions.push({
-      name: "Algorithm 1",
-      value: Math.random(),
-      description: "This is the prediction of the news",
+    const encodedTitle = encodeURIComponent(title);
+    const encodedText = encodeURIComponent(text);
+    const urlParams = new URLSearchParams({
+      title: encodedTitle,
+      content: encodedText,
     });
+
+    const baseUrl = "http://localhost:8080/predict?";
+    const url = baseUrl + urlParams.toString();
+
+    try {
+      const res = await fetch(url);
+
+      if (res.ok) {
+        const data = await res.json();
+        predictions = data;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
     loading = false;
   }
 
