@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from robyn import Request, Response, Robyn, jsonify, serve_html
-from robyn.logger import logger
 
 app = Robyn(__file__)
 
