@@ -21,7 +21,6 @@ df.drop(['subject', 'title', 'date'], axis=1, inplace=True)
 random_indexes = np.random.randint(0, len(df), len(df))
 df = df.iloc[random_indexes].reset_index(drop=True)
 
-
 def preprocess(text):
     text = text.lower()
     text = re.sub(r'\[.*?\]', '', text)
@@ -32,7 +31,6 @@ def preprocess(text):
     text = re.sub(r'\n', '', text)
     text = re.sub(r'\w*\d\w*', '', text)
     return text
-
 
 df['text'] = df['text'].apply(preprocess)
 
