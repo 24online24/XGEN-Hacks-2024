@@ -11,6 +11,22 @@ ALLOW_CORS(app, origins=["http://localhost:5173"])
 
 app.add_directory("/assets", "./web/frontend/dist/assets")
 
+MODEL_DESCRIPTION = {
+    "Random Forest": "Random Forest is an ensemble learning method that builds multiple decision trees and outputs their majority vote for classification or average prediction for regression, enhancing accuracy and robustness.",
+    "Decision Tree": "A Decision Tree is a model that splits data into branches based on feature values, leading to a prediction at each leaf node.",
+    "Logistic Regression": "Logistic Regression is a statistical model that predicts the probability of a binary outcome using a linear combination of input features.",
+    "Multinomial Naive Bayes": "Multinomial Naive Bayes is a probabilistic classifier that uses Bayes' theorem to predict categories based on the frequency of features in the input data.",
+    "Support Vector Machine": "Support Vector Machine (SVM) is a supervised learning model that finds the optimal hyperplane to separate data points into distinct classes."
+}
+
+MODEL_ACCURACY = {
+    "Random Forest": "97.57",
+    "Decision Tree": "99.62",
+    "Logistic Regression": "98.79",
+    "Multinomial Naive Bayes": "93.83",
+    "Support Vector Machine": "95.74"
+}
+
 
 @app.get("/")
 async def index():
@@ -41,7 +57,8 @@ async def predict(request: Request) -> Response:
         result_list.append(
             {
                 "name": model_name,
-                "description": "This is the probability of the news being fake",
+                "description": MODEL_DESCRIPTION[model_name],
+                "accuracy": MODEL_ACCURACY[model_name],
                 "value": result
             }
         )
