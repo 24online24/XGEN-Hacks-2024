@@ -9,6 +9,7 @@ import string
 
 df = pd.read_csv("ML/csv_train/Combined.csv")
 
+
 def preprocess(text):
     text = text.lower()
     text = re.sub(r'\[.*?\]', '', text)
@@ -19,6 +20,7 @@ def preprocess(text):
     text = re.sub(r'\n', '', text)
     text = re.sub(r'\w*\d\w*', '', text)
     return text
+
 
 df['text'] = df['text'].apply(preprocess)
 
@@ -31,7 +33,8 @@ vectorizer = TfidfVectorizer(stop_words='english')
 X = vectorizer.fit_transform(texts)
 y = labels
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42)
 
 svm_model = SVC(kernel='linear')
 svm_model.fit(X_train, y_train)
@@ -41,5 +44,5 @@ y_pred = svm_model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 report = classification_report(y_test, y_pred)
 
-joblib.dump(svm_model, 'ML/saved_models/svm_model.pkl')
-joblib.dump(vectorizer, 'ML/saved_models/svm_vectorizer.pkl')
+joblib.dump(svm_model, 'web/ML/saved_models/svm_model.pkl')
+joblib.dump(vectorizer, 'web/ML/saved_models/svm_vectorizer.pkl')

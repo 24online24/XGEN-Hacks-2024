@@ -21,6 +21,7 @@ df.drop(['subject', 'title', 'date'], axis=1, inplace=True)
 random_indexes = np.random.randint(0, len(df), len(df))
 df = df.iloc[random_indexes].reset_index(drop=True)
 
+
 def preprocess(text):
     text = text.lower()
     text = re.sub(r'\[.*?\]', '', text)
@@ -31,6 +32,7 @@ def preprocess(text):
     text = re.sub(r'\n', '', text)
     text = re.sub(r'\w*\d\w*', '', text)
     return text
+
 
 df['text'] = df['text'].apply(preprocess)
 
@@ -45,5 +47,6 @@ x_test = vectorization.transform(x_test)
 Random_Forest_Classifier = RandomForestClassifier(random_state=0)
 Random_Forest_Classifier.fit(x_train, y_train)
 
-joblib.dump(Random_Forest_Classifier, 'ML/saved_models/random_forest_model.pkl')
-joblib.dump(vectorization, 'ML/saved_models/random_forest_vectorizer.pkl')
+joblib.dump(Random_Forest_Classifier,
+            'web/ML/saved_models/random_forest_model.pkl')
+joblib.dump(vectorization, 'web/ML/saved_models/random_forest_vectorizer.pkl')
