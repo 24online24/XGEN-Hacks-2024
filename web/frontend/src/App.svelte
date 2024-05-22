@@ -8,8 +8,8 @@
   import { LoaderCircle } from "lucide-svelte";
   import { ModeWatcher } from "mode-watcher";
 
-  let title = "Hello World";
-  let text = "This is a test text";
+  let title = "";
+  let text = "";
 
   interface Prediction {
     name: string;
@@ -29,9 +29,12 @@
 
   async function submit() {
     loading = true;
-    console.log(title, text);
-    // this will call the backend to get the predictions, each algoritm has the following object
-    // {name: string, value: number, description: string}
+
+    if (title.trim().length < 4 || text.trim().length < 4) {
+      loading = false;
+      alert("Please fill in both field with at least 4 characters");
+      return;
+    }
 
     const url = `/predict?title=${title}&content=${text}`;
 
@@ -54,30 +57,36 @@
 
 <div class="relative flex min-h-screen flex-col bg-background">
   <Navbar />
-  <div class="flex-1 pt-2">
-    <div class="container grid grid-cols-2 gap-6">
+  <div class="flex-1">
+    <div class="container grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="flex flex-col py-6 gap-4">
-        <!-- header -->
         <h1 class="text-3xl font-bold">News Prediction</h1>
-        <!-- Form to submit the news -->
-        <!-- desc -->
-        <p class="text-lg">
+        <p class="text-lg text-muted-foreground">
           Submit a news article to get the predictions from our algorithms
         </p>
 
-        <Label class="px-3" for="newsTitle">News Title</Label>
-        <Input
-          id="newsTitle"
-          bind:value={title}
-          placeholder="Enter the news text here..."
-        />
-        <Label class="px-3" for="newsText">News Text</Label>
-        <Textarea
-          id="newsText"
-          bind:value={text}
-          class="h-48"
-          placeholder="Enter the news text here..."
-        />
+        <div class="">
+          <Label class="px-3 text-lg font-semibold" for="newsTitle"
+            >News Title</Label
+          >
+          <Input
+            id="newsTitle"
+            bind:value={title}
+            placeholder="Enter the news title here..."
+          />
+        </div>
+        <div class="">
+          <Label class="px-3 text-lg font-semibold" for="newsText"
+            >News Text</Label
+          >
+          <Textarea
+            id="newsText"
+            bind:value={text}
+            class="h-48 placeholder:text-muted-foreground"
+            placeholder="Enter the news text here..."
+          />
+        </div>
+
         <Button on:click={submit} disabled={loading} class="w-1/4 self-center">
           {#if loading}
             <LoaderCircle class="size-6 animate-spin" />
@@ -93,7 +102,9 @@
             {#if loading}
               <LoaderCircle class="size-12 animate-spin self-center" />
             {:else}
-              <p class="text-lg text-center">No predictions available</p>
+              <p class="text-lg text-center">
+                Fill in the form to get predictions for the news
+              </p>
             {/if}
           </div>
         {:else}
@@ -103,8 +114,8 @@
               <ModelResult
                 name="Overall"
                 value={overallPrediction}
-                description="This is the overall prediction of the news"
-                accuracy={0}
+                accuracy={undefined}
+                description="This is the overall prediction of the news, based on the predictions from all the algorithms. The percentages represent the probability of the news being real."
               />
             </div>
             <h2 class="text-xl font-bold mt-4">Predictions</h2>

@@ -1,10 +1,13 @@
 <script lang="ts">
-  export let name: string; // name of model
-  export let value: number; // confidence
-  export let description: string; // description of the model
-  export let accuracy: number; // accuracy of the model
+  import { ThumbsDown, ThumbsUp } from "lucide-svelte";
+  import Button from "./ui/button/button.svelte";
 
-  // prediction color red if values under 0.33, yellow if under 0.66, green if above 0.66
+  export let name: string; // name of model
+  export let value: number; // likelihood of news being true
+  export let description: string; // description of the model
+  export let accuracy: number | undefined; // training accuracy of the model
+
+  // Determine the color based on the value
   let color =
     value < 33
       ? "text-red-500"
@@ -12,44 +15,107 @@
         ? "text-yellow-500"
         : "text-green-500";
 
-  // a bit more fun with the prediction status
+  // Prediction messages based on likelihood of news being true
   let predictionMessage;
-  value < 10
-    ? (predictionMessage = "Not so sure")
-    : value < 50
-      ? (predictionMessage = "Maybe")
-      : value < 80
-        ? (predictionMessage = "Pretty sure")
-        : (predictionMessage = "Very sure");
+  value < 15
+    ? (predictionMessage = "Very unlikely to be true")
+    : value < 35
+      ? (predictionMessage = "Unlikely to be true")
+      : value < 50
+        ? (predictionMessage = "Possibly true")
+        : value < 75
+          ? (predictionMessage = "Likely to be true")
+          : value < 90
+            ? (predictionMessage = "Very likely to be true")
+            : (predictionMessage = "Almost certainly true");
 
   $: confidence = value.toFixed(2);
+
+  async function sendFeedback(feedback: boolean) {
+    const url = `http://localhost:8080/predict`;
+    console.log("Feedback sent");
+
+    try {
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: name,
+          content: description,
+          feedback,
+        }),
+      });
+      vote = feedback;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  let vote: boolean;
 </script>
 
-<!-- Animate the height card on hover to show nicely the rest of details -->
+<!-- Enhanced styling and layout -->
 <div
-  class="bg-card border border-border rounded-lg p-4 mt-4 group cursor-pointer"
+  class="bg-card border border-border rounded-lg p-4 mt-4 group cursor-pointer hover:shadow-lg transition-shadow duration-300"
 >
   <div class="flex items-center justify-between">
-    <div class="flex items-center">
-      <span class="text-sm capitalize font-medium">{name}</span>
-    </div>
-    <span class={"text-sm flex-1 text-center font-medium text-muted-foreground"}
+    <span class="text-sm flex-1 font-cubano capitalize font-medium">{name}</span
+    >
+    <span class="text-sm font-medium text-muted-foreground"
       >{predictionMessage}</span
     >
-    <span class={color + " text-sm font-medium"}>{value}% Confidence</span>
+    <div class="flex-1 justify-end flex gap-2 items-center">
+      <span class={"text-sm  font-cubano text-right font-medium " + color}
+        >{confidence}% Probability</span
+      >
+
+      {#if accuracy === undefined}
+        <!-- feedback section -->
+        <div class="hidden group-hover:flex items-center gap-2">
+          <Button
+            class="text-xs p-0 h-fit"
+            on:click={() => sendFeedback(false)}
+            variant="secondary"
+            size="sm"
+          >
+            <ThumbsDown
+              class={vote === false
+                ? "size-3 text-red-500"
+                : "size-3 text-muted-foreground hover:text-red-500"}
+            />
+          </Button>
+          <Button
+            class="text-xs p-0 h-fit"
+            on:click={() => sendFeedback(true)}
+            variant="secondary"
+            size="sm"
+          >
+            <ThumbsUp
+              class={vote === true
+                ? "size-3 text-green-500"
+                : "size-3 text-muted-foreground hover:text-green-500"}
+            />
+          </Button>
+        </div>
+      {/if}
+    </div>
   </div>
   <div
-    class="hidden group-hover:block transition-[height] duration-1000 ease-in-out"
+    class="hidden group-hover:block transition-[height] duration-1000 ease-in-out mt-2"
   >
     <p
-      class="mt-2 text-xs h-0 group-hover:h-auto transition-[height] duration-1000 ease-in-out"
+      class=" text-xs group-hover:h-auto transition-[height] duration-1000 ease-in-out"
     >
       {description}
-      {#if accuracy > 0}
-        <br />
-        <span class="text-xs text-muted-foreground">
-          Training accuracy: {accuracy}%
-        </span>
+      {#if accuracy !== undefined}
+        <div class="flex w-full justify-end">
+          <span
+            class="px-2 py-1 rounded-md bg-muted border-border mt-2 text-xs text-muted-foreground"
+          >
+            Training accuracy: <span class="font-cubano">{accuracy}%</span>
+          </span>
+        </div>
       {/if}
     </p>
   </div>
