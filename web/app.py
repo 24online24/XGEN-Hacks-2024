@@ -1,6 +1,6 @@
 import json
 from urllib.parse import unquote
-from robyn import ALLOW_CORS, Request, Response, Robyn, serve_html
+from robyn import Request, Response, Robyn, serve_html
 
 from constants import MODEL_ACCURACY, MODEL_DESCRIPTION
 from ml_caller import predict_real
