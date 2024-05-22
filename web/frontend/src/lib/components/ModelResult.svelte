@@ -32,7 +32,7 @@
   $: confidence = value.toFixed(2);
 
   async function sendFeedback(feedback: boolean) {
-    const url = `http://localhost:8080/predict`;
+    const url = `/predict`;
     console.log("Feedback sent");
 
     try {
