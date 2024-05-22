@@ -8,8 +8,6 @@ from ml_caller import predict_real
 
 app = Robyn(__file__)
 
-ALLOW_CORS(app, origins=["http://localhost:5173"])
-
 app.add_directory("/assets", "./web/frontend/dist/assets")
 
 

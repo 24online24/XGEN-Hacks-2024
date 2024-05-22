@@ -33,7 +33,7 @@
     // this will call the backend to get the predictions, each algoritm has the following object
     // {name: string, value: number, description: string}
 
-    const url = `http://localhost:8080/predict?title=${title}&content=${text}`;
+    const url = `/predict?title=${title}&content=${text}`;
 
     try {
       const res = await fetch(url);
