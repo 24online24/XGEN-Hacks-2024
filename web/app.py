@@ -70,5 +70,16 @@ async def predict(request: Request) -> Response:
     )
 
 
+@app.post("/feedback")
+async def feedback(request: Request) -> Response:
+    data = request.json()
+    print(data)
+    return Response(
+        status_code=200,
+        headers={"Content-Type": "application/json"},
+        description=json.dumps({"message": "Feedback received"}),
+    )
+
+
 if __name__ == "__main__":
     app.start(host="0.0.0.0", port=8080)
