@@ -1,20 +1,23 @@
 import json
 from urllib.parse import unquote
 from robyn import Request, Response, Robyn, serve_html
+import os
 
 from constants import MODEL_ACCURACY, MODEL_DESCRIPTION
 from ml_caller import predict_real
 
-
 app = Robyn(__file__)
 
-app.add_directory("/assets", "./web/frontend/dist/assets")
+# app.add_directory("/assets", "./web/frontend/dist/assets")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+assets_path = os.path.join(current_dir, "frontend/dist/assets")
+index_path = os.path.join(current_dir, "frontend/dist/index.html")
 
+app.add_directory("/assets", assets_path)
 
 @app.get("/")
 async def index():
-    return serve_html("./web/frontend/dist/index.html")
-
+    return serve_html("frontend/dist/index.html")
 
 @app.get("/predict")
 async def predict(request: Request) -> Response:

@@ -1,31 +1,20 @@
-import time
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 import pandas as pd
 import numpy as np
 import re
 import string
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
 import joblib
 
-df_fake = pd.read_csv("ML/csv_train/Fake.csv")
-df_real = pd.read_csv("ML/csv_train/True.csv")
-
-df_real['is_fake'] = 0
-df_fake['is_fake'] = 1
-
-df = pd.concat([df_real, df_fake])
-
-df.drop(['subject', 'title', 'date'], axis=1, inplace=True)
-
-random_indexes = np.random.randint(0, len(df), len(df))
-df = df.iloc[random_indexes].reset_index(drop=True)
-
+def load_data(combined_path):
+    df = pd.read_csv(combined_path)
+    return df.sample(frac=1).reset_index(drop=True)
 
 def preprocess(text):
     text = text.lower()
     text = re.sub(r'\[.*?\]', '', text)
-    text = re.sub(r"\\W", " ", text)
     text = re.sub(r'https?://\S+|www\.\S+', '', text)
     text = re.sub(r'<.*?>+', '', text)
     text = re.sub(r'[%s]' % re.escape(string.punctuation), '', text)
@@ -33,20 +22,40 @@ def preprocess(text):
     text = re.sub(r'\w*\d\w*', '', text)
     return text
 
+def preprocess_dataframe(df):
+    df['text'] = df['text'].apply(preprocess)
+    df['title'] = df['title'].apply(preprocess)
+    return df
 
-df['text'] = df['text'].apply(preprocess)
+def vectorize_text(x_train, x_test):
+    vectorization = TfidfVectorizer()
+    x_train_tfidf = vectorization.fit_transform(x_train)
+    x_test_tfidf = vectorization.transform(x_test)
+    return x_train_tfidf, x_test_tfidf, vectorization
 
-x = df["text"]
-y = df["is_fake"]
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+def train_and_evaluate_model(x_train_tfidf, y_train, x_test_tfidf, y_test):
+    model = RandomForestClassifier(random_state=0)
+    model.fit(x_train_tfidf, y_train)
+    accuracy = model.score(x_test_tfidf, y_test)
+    print(f'Validation Accuracy: {accuracy:.2f}')
+    return model
 
-vectorization = TfidfVectorizer()
-x_train = vectorization.fit_transform(x_train)
-x_test = vectorization.transform(x_test)
+def save_model(model, vectorizer, model_path, vectorizer_path):
+    joblib.dump(model, model_path)
+    joblib.dump(vectorizer, vectorizer_path)
+    print("Model and vectorizer saved successfully.")
 
-Random_Forest_Classifier = RandomForestClassifier(random_state=0)
-Random_Forest_Classifier.fit(x_train, y_train)
-
-joblib.dump(Random_Forest_Classifier,
-            'web/ML/saved_models/random_forest_model.pkl')
-joblib.dump(vectorization, 'web/ML/saved_models/random_forest_vectorizer.pkl')
+if __name__ == "__main__":
+    df = load_data("web/ML/csv_train/Combined.csv")
+    df = preprocess_dataframe(df)
+    
+    x = df["title"] + " " + df["text"]
+    y = df["Label"]
+    
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
+    
+    x_train_tfidf, x_test_tfidf, vectorization = vectorize_text(x_train, x_test)
+    
+    model = train_and_evaluate_model(x_train_tfidf, y_train, x_test_tfidf, y_test)
+    
+    save_model(model, vectorization, 'web/ML/saved_models/random_forest_model.pkl', 'web/ML/saved_models/random_forest_vectorizer.pkl')

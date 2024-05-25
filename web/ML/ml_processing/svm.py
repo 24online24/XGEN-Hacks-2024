@@ -1,19 +1,20 @@
-import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
 from sklearn.metrics import classification_report, accuracy_score
+from sklearn.svm import SVC
+
 import joblib
 import re
 import string
+import pandas as pd
 
-df = pd.read_csv("ML/csv_train/Combined.csv")
-
+def load_data(filepath):
+    df = pd.read_csv(filepath)
+    return df.sample(frac=1).reset_index(drop=True)
 
 def preprocess(text):
     text = text.lower()
     text = re.sub(r'\[.*?\]', '', text)
-    text = re.sub(r"\\W", " ", text)
     text = re.sub(r'https?://\S+|www\.\S+', '', text)
     text = re.sub(r'<.*?>+', '', text)
     text = re.sub(r'[%s]' % re.escape(string.punctuation), '', text)
@@ -21,28 +22,42 @@ def preprocess(text):
     text = re.sub(r'\w*\d\w*', '', text)
     return text
 
+def preprocess_dataframe(df):
+    df['text'] = df['text'].apply(preprocess)
+    return df
 
-df['text'] = df['text'].apply(preprocess)
+def vectorize_text(texts):
+    vectorizer = TfidfVectorizer(stop_words='english')
+    X = vectorizer.fit_transform(texts)
+    return X, vectorizer
 
-texts = df['text'].tolist()
-labels = df['Label'].tolist()
+def train_and_evaluate_model(X_train, y_train, X_test, y_test):
+    model = SVC(kernel='linear')
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+    print(f'Validation Accuracy: {accuracy:.2f}')
+    print(f'Classification Report:\n{report}')
+    return model
 
-labels = [int(label) for label in labels]
+def save_model(model, vectorizer, model_path, vectorizer_path):
+    joblib.dump(model, model_path)
+    joblib.dump(vectorizer, vectorizer_path)
+    print("Model and vectorizer saved successfully.")
 
-vectorizer = TfidfVectorizer(stop_words='english')
-X = vectorizer.fit_transform(texts)
-y = labels
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42)
-
-svm_model = SVC(kernel='linear')
-svm_model.fit(X_train, y_train)
-
-y_pred = svm_model.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-report = classification_report(y_test, y_pred)
-
-joblib.dump(svm_model, 'web/ML/saved_models/svm_model.pkl')
-joblib.dump(vectorizer, 'web/ML/saved_models/svm_vectorizer.pkl')
+if __name__ == "__main__":
+    df = load_data("web/ML/csv_train/Combined.csv")
+    df = preprocess_dataframe(df)
+    
+    texts = df['text'].tolist()
+    labels = df['Label'].tolist()
+    labels = [int(label) for label in labels]
+    
+    X, vectorizer = vectorize_text(texts)
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.2, random_state=42)
+    
+    model = train_and_evaluate_model(X_train, y_train, X_test, y_test)
+    
+    save_model(model, vectorizer, 'web/ML/saved_models/svm_model.pkl', 'web/ML/saved_models/svm_vectorizer.pkl')
